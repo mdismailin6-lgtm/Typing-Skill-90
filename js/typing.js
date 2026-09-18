@@ -1,7 +1,64 @@
 /**
- * Monkeytype Style Real-Time Typing Engine
- * Supports space-delimited words, accurate metrics & quick restart
+ * Monkeytype Style Real-Time Typing Engine with Audio Feedback
+ * Zero-latency synthetic mechanical sound effects
  */
+
+// সাউন্ড এফেক্টস কন্ট্রোলার (Web Audio API)
+const SoundFX = {
+  ctx: null,
+
+  init() {
+    if (!this.ctx && (window.AudioContext || window.webkitAudioContext)) {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      this.ctx = new AudioCtx();
+    }
+    if (this.ctx && this.ctx.state === "suspended") {
+      this.ctx.resume();
+    }
+  },
+
+  playCorrect() {
+    if (!CONFIG.SOUND.ENABLED || !this.ctx) return;
+    try {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(650, this.ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(850, this.ctx.currentTime + 0.04);
+
+      gain.gain.setValueAtTime(CONFIG.SOUND.VOLUME, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.04);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.04);
+    } catch (e) {}
+  },
+
+  playIncorrect() {
+    if (!CONFIG.SOUND.ENABLED || !this.ctx) return;
+    try {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.type = "sawtooth";
+      osc.frequency.setValueAtTime(180, this.ctx.currentTime);
+      osc.frequency.linearRampToValueAtTime(130, this.ctx.currentTime + 0.09);
+
+      gain.gain.setValueAtTime(CONFIG.SOUND.VOLUME * 1.5, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.09);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.09);
+    } catch (e) {}
+  }
+};
 
 class MonkeyTypingEngine {
   constructor(contentData, duration) {
@@ -13,7 +70,7 @@ class MonkeyTypingEngine {
     this.timer = null;
     this.isStarted = false;
     this.currentWordIdx = 0;
-    this.currentCharIdx = 0;
+    this.lastInputLength = 0;
 
     this.correctChars = 0;
     this.incorrectChars = 0;
@@ -55,17 +112,22 @@ class MonkeyTypingEngine {
 
   focusInput() {
     this.input.focus();
-    // মোবাইল স্ক্রল প্রিভেনশন ও ফোকাস নিশ্চিত করা
-    document.addEventListener("click", () => this.input.focus());
+    document.addEventListener("click", () => {
+      SoundFX.init();
+      this.input.focus();
+    });
   }
 
   setupListeners() {
     this.input.value = "";
+    this.lastInputLength = 0;
+
     this.input.addEventListener("input", (e) => this.handleInput(e));
     this.restartBtn.addEventListener("click", () => location.reload());
 
-    // Tab + Enter দিয়ে কুইক রিস্টার্ট (স্ক্রিনশটের মতো)
+    // Tab + Enter কুইক রিস্টার্ট
     window.addEventListener("keydown", (e) => {
+      SoundFX.init();
       if (e.key === "Tab") {
         e.preventDefault();
         this.tabPressed = true;
@@ -92,6 +154,8 @@ class MonkeyTypingEngine {
   }
 
   handleInput(e) {
+    SoundFX.init();
+
     if (!this.isStarted) {
       this.startTimer();
     }
@@ -105,19 +169,35 @@ class MonkeyTypingEngine {
     const targetWord = this.wordsList[this.currentWordIdx];
     const inputValue = this.input.value;
 
-    // স্পেস চাপলে পরের শব্দে জাম্প করা
+    // স্পেস চাপলে পরের শব্দে যাওয়া
     if (inputValue.endsWith(" ")) {
       if (inputValue.trim().length > 0) {
+        SoundFX.playCorrect();
         this.moveToNextWord();
       }
       this.input.value = "";
+      this.lastInputLength = 0;
       return;
     }
 
     const charElements = currentWordEl.children;
     const typedLen = inputValue.length;
 
-    // কারেন্ট ক্যারেক্টার ও ভুল/সঠিক ভ্যালিডেশন
+    // নতুন ক্যারেক্টার টাইপ হলে সাউন্ড ফিডব্যাক
+    if (typedLen > this.lastInputLength) {
+      const typedIndex = typedLen - 1;
+      const expected = targetWord[typedIndex];
+      const typedChar = inputValue[typedIndex];
+
+      if (typedChar === expected) {
+        SoundFX.playCorrect();
+      } else {
+        SoundFX.playIncorrect();
+      }
+    }
+    this.lastInputLength = typedLen;
+
+    // ক্যারেক্টার ক্লাস স্টেট আপডেট
     for (let i = 0; i < targetWord.length; i++) {
       const span = charElements[i];
       span.classList.remove("current", "correct", "incorrect");
@@ -131,12 +211,10 @@ class MonkeyTypingEngine {
       }
     }
 
-    // কার্সার ইন্ডিকেটর আপডেট
+    // কার্সার আপডেট
     if (typedLen < targetWord.length) {
       charElements[typedLen].classList.add("current");
     }
-
-    this.currentCharIdx = typedLen;
   }
 
   moveToNextWord() {
@@ -144,7 +222,6 @@ class MonkeyTypingEngine {
     const targetWord = this.wordsList[this.currentWordIdx];
     const typedWord = this.input.value.trim();
 
-    // শব্দের স্ট্যাটাস গণনা
     for (let i = 0; i < targetWord.length; i++) {
       if (i < typedWord.length && typedWord[i] === targetWord[i]) {
         this.correctChars++;
@@ -153,10 +230,8 @@ class MonkeyTypingEngine {
       }
     }
 
-    // স্পেসের জন্য ১টি সঠিক কাউন্ট যোগ করা
-    this.correctChars++;
+    this.correctChars++; // স্পেস কাউন্ট
 
-    // কার্সার রিমুভ ও নেক্সট ওয়ার্ড সিলেক্ট
     Array.from(currentWordEl.children).forEach(span => span.classList.remove("current"));
 
     this.currentWordIdx++;
@@ -214,7 +289,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   const loaderBox = document.getElementById("loader-box");
   const typingZone = document.getElementById("typing-zone");
 
-  // AdSense ব্যানার হ্যান্ডলিং (নিচের নিরাপদ স্লটে)
   const adConfig = await API.getAdConfig();
   AdManager.setup(adConfig);
   if (adConfig && adConfig.enabled) {
