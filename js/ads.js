@@ -1,22 +1,22 @@
 /**
- * AdSense Integration & Management Layer
- * Handles ad injection and lifecycle without breaking typing UX
+ * AdSense Management Layer
+ * Integrates with database 'ad_config' and renders responsive safe ads
  */
 
 const AdManager = {
-  isInitialized: false,
+  scriptLoaded: false,
 
   /**
-   * AdSense Script ইনজেক্ট করে ব্রাউজারে
-   * @param {string} publisherId - 'ca-pub-XXXXXXXXXXXX'
-   * @param {boolean} autoAds - Auto ads চালু থাকবে কি না
+   * Google AdSense মূল স্ক্রিপ্ট ইনজেক্ট করে
+   * @param {string} publisherId
+   * @param {boolean} autoAds
    */
-  loadScript(publisherId, autoAds = true) {
-    if (this.isInitialized || !publisherId) return;
+  loadAdSenseScript(publisherId, autoAds = true) {
+    if (this.scriptLoaded || !publisherId) return;
 
     const existingScript = document.getElementById("adsense-core-script");
     if (existingScript) {
-      this.isInitialized = true;
+      this.scriptLoaded = true;
       return;
     }
 
@@ -26,35 +26,32 @@ const AdManager = {
     script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${publisherId}`;
     script.crossOrigin = "anonymous";
 
-    // Auto Ads কনফিগারেশন
     if (!autoAds) {
       script.setAttribute("data-ad-client", publisherId);
     }
 
     script.onload = () => {
-      this.isInitialized = true;
-      console.log("AdSense loaded successfully.");
+      this.scriptLoaded = true;
     };
 
     script.onerror = () => {
-      console.warn("AdSense failed to load (AdBlocker active or network error).");
+      console.warn("AdSense script blocked or network unavailable.");
     };
 
     document.head.appendChild(script);
   },
 
   /**
-   * নির্দিষ্ট কন্টেইনারে অ্যাড ইউনিট রেন্ডার করা
-   * @param {string} containerId - HTML div ID
-   * @param {string} publisherId - AdSense Publisher ID
-   * @param {string} slotId - Unit Slot ID (ঐচ্ছিক)
+   * নির্দিষ্ট কন্টেইনারে ব্যানার/রেসপন্সিভ অ্যাড বসায়
+   * @param {string} containerId - HTML উপাদানের ID
+   * @param {string} publisherId - ডেটাবেস থেকে প্রাপ্ত Publisher ID
+   * @param {string} slotId - ঐচ্ছিক Ad Slot ID
    */
-  renderSlot(containerId, publisherId, slotId = "") {
-    const container = document.getElementById(containerId);
-    if (!container || !publisherId) return;
+  renderBanner(containerId, publisherId, slotId = "") {
+    const target = document.getElementById(containerId);
+    if (!target || !publisherId) return;
 
-    // পূর্বের কোনো ফাঁকা বা ভুল কনটেন্ট মুছে ফেলা
-    container.innerHTML = "";
+    target.innerHTML = "";
 
     const ins = document.createElement("ins");
     ins.className = "adsbygoogle";
@@ -67,25 +64,26 @@ const AdManager = {
     ins.setAttribute("data-ad-format", "auto");
     ins.setAttribute("data-full-width-responsive", "true");
 
-    container.appendChild(ins);
+    target.appendChild(ins);
 
     try {
       (window.adsbygoogle = window.adsbygoogle || []).push({});
     } catch (err) {
-      console.warn("Ad unit push error:", err);
+      console.warn("AdSense push error:", err);
     }
   },
 
   /**
-   * ad_config ডেটাবেস রেকর্ড অনুযায়ী সম্পূর্ণ সিস্টেম শুরু করা
-   * @param {Object} adConfig - Collection: ad_config / Document: google_adsense
+   * Database Collection: 'ad_config' Document: 'google_adsense' দিয়ে শুরু করা
+   * @param {Object} dbAdConfig
    */
-  initFromConfig(adConfig) {
-    if (!adConfig || !adConfig.enabled) {
-      console.log("Ads are disabled by database configuration.");
+  setup(dbAdConfig) {
+    const config = dbAdConfig || CONFIG.FALLBACK_ADS;
+
+    if (!config || !config.enabled) {
       return;
     }
 
-    this.loadScript(adConfig.publisherId, adConfig.autoAds);
+    this.loadAdSenseScript(config.publisherId, config.autoAds);
   }
 };
