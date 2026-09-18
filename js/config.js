@@ -16,6 +16,12 @@ const CONFIG = {
     DURATION: 60            // সেকেন্ডে ডিউরেশন
   },
 
+  // সাউন্ড সেটিংস
+  SOUND: {
+    ENABLED: true,          // সাউন্ড অন/অফ
+    VOLUME: 0.15            // ভলিউম লেভেল (০.০ থেকে ১.০)
+  },
+
   // সমর্থিত টেস্ট ডিউরেশন (API লোড না হলে ফলব্যাক হিসেবে ব্যবহৃত হবে)
   FALLBACK_DURATIONS: [15, 30, 60, 120],
 
@@ -34,6 +40,7 @@ const CONFIG = {
 // গ্লোবালি কনফিগারেশন ডেটা অপরিবর্তনীয় রাখা হলো
 Object.freeze(CONFIG);
 Object.freeze(CONFIG.DEFAULTS);
+Object.freeze(CONFIG.SOUND);
 Object.freeze(CONFIG.FALLBACK_DURATIONS);
 Object.freeze(CONFIG.FALLBACK_ADS);
 Object.freeze(CONFIG.FALLBACK_ADS.SLOTS);
