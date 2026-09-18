@@ -1,30 +1,19 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;600&display=swap');
+
 /* =========================================
-   Design System & Theme Variables
+   Monkeytype Signature Color Palette
 ========================================= */
 :root {
-  --bg-main: #0a0f1d;
-  --bg-card: #131c31;
-  --bg-card-hover: #1b2642;
-  --primary: #38bdf8;
-  --primary-glow: rgba(56, 189, 248, 0.25);
-  
-  --text-main: #f1f5f9;
-  --text-muted: #94a3b8;
-  --border-color: #24324f;
-  
-  --char-default: #64748b;
-  --char-correct: #4ade80;
-  --char-incorrect: #f87171;
-  --char-bg-incorrect: rgba(248, 113, 113, 0.18);
-  --cursor-color: #38bdf8;
-
-  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-mono: "Fira Code", "Courier New", Courier, monospace;
+  --bg-color: #323437;          /* Monkeytype Core Charcoal */
+  --main-color: #e2b714;        /* Monkeytype Vibrant Yellow Accent */
+  --caret-color: #e2b714;
+  --sub-color: #646669;         /* Unfocused / Untyped Gray */
+  --text-color: #d1d0c5;        /* Active / Typed Bright White */
+  --error-color: #ca4754;       /* Incorrect Text Red */
+  --error-extra: #7e2a33;
+  --font-mono: 'Roboto Mono', monospace;
 }
 
-/* =========================================
-   Reset & Baseline
-========================================= */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -32,281 +21,216 @@
 }
 
 body {
-  background-color: var(--bg-main);
-  color: var(--text-main);
-  font-family: var(--font-sans);
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-family: var(--font-mono);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: space-between;
-  padding: 20px 16px;
-  -webkit-font-smoothing: antialiased;
+  align-items: center;
+  padding: 16px;
+  overflow-x: hidden;
 }
 
-.container {
+.page-container {
   width: 100%;
-  max-width: 900px;
+  max-width: 950px;
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  align-items: center;
+  gap: 24px;
 }
 
 /* =========================================
-   Header & Branding
+   Top Minimal Navbar
 ========================================= */
-header {
+.top-nav {
+  width: 100%;
   display: flex;
-  align-items: center;
   justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
 }
 
-.brand {
-  font-size: 1.6rem;
-  font-weight: 800;
-  color: var(--primary);
-  text-decoration: none;
-  letter-spacing: -0.5px;
+.brand-badge {
   display: flex;
   align-items: center;
   gap: 8px;
-}
-
-/* =========================================
-   Cards & Options Grid
-========================================= */
-.card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: 16px;
-  padding: 28px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.form-group label {
-  font-size: 0.85rem;
+  border: 2px solid var(--main-color);
+  border-radius: 6px;
+  padding: 4px 8px;
+  color: var(--main-color);
   font-weight: 600;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.btn-group {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.btn-opt {
-  background: var(--bg-card-hover);
-  color: var(--text-muted);
-  border: 1px solid var(--border-color);
-  padding: 10px 18px;
-  border-radius: 10px;
-  font-size: 0.95rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  user-select: none;
-}
-
-.btn-opt:hover {
-  color: var(--text-main);
-  border-color: var(--primary);
-}
-
-.btn-opt.active {
-  background: var(--primary-glow);
-  color: var(--primary);
-  border-color: var(--primary);
-}
-
-.btn-primary {
-  background: var(--primary);
-  color: var(--bg-main);
-  border: none;
-  padding: 14px 28px;
-  border-radius: 10px;
-  font-size: 1.1rem;
-  font-weight: 700;
-  cursor: pointer;
-  text-align: center;
+  font-size: 0.9rem;
   text-decoration: none;
-  transition: opacity 0.2s, transform 0.1s;
 }
 
-.btn-primary:hover {
-  opacity: 0.92;
-}
-
-.btn-primary:active {
-  transform: scale(0.98);
+.nav-icons {
+  display: flex;
+  gap: 16px;
+  color: var(--sub-color);
+  font-size: 1.1rem;
 }
 
 /* =========================================
-   Live Typing Interface
+   Pill Action Controls (Test Settings / Mode)
 ========================================= */
-.stats-bar {
+.settings-pill-btn {
+  background: transparent;
+  border: 1px solid var(--sub-color);
+  color: var(--sub-color);
+  font-family: var(--font-mono);
+  padding: 8px 24px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  cursor: pointer;
   display: flex;
-  justify-content: space-around;
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: 14px;
-  padding: 16px 20px;
-}
-
-.stat-item {
-  display: flex;
-  flex-direction: column;
   align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
 }
 
-.stat-label {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  font-weight: 600;
+.settings-pill-btn:hover {
+  border-color: var(--text-color);
+  color: var(--text-color);
 }
 
-.stat-value {
-  font-size: 2rem;
-  font-weight: 800;
-  color: var(--primary);
-  font-family: var(--font-mono);
+.language-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--sub-color);
+  font-size: 0.9rem;
+  margin-top: 10px;
 }
 
-.typing-surface {
+/* =========================================
+   Live Typing Word Stream (Exact Monkeytype Look)
+========================================= */
+.typing-box {
+  width: 100%;
+  min-height: 140px;
   position: relative;
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: 16px;
-  padding: 24px;
-  min-height: 180px;
-  font-family: var(--font-mono);
-  font-size: 1.35rem;
-  line-height: 1.9;
-  letter-spacing: 0.5px;
-  cursor: text;
+  margin-top: 20px;
+  outline: none;
+  cursor: default;
+}
+
+.words-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5em 0.8em;
+  font-size: 1.5rem;
+  line-height: 1.6;
   user-select: none;
 }
 
-.text-stream {
+.word {
   display: flex;
-  flex-wrap: wrap;
-  word-break: break-all;
 }
 
 .char {
-  color: var(--char-default);
+  color: var(--sub-color);
   position: relative;
+  transition: color 0.08s ease;
 }
 
 .char.correct {
-  color: var(--char-correct);
+  color: var(--text-color);
 }
 
 .char.incorrect {
-  color: var(--char-incorrect);
-  background: var(--char-bg-incorrect);
-  border-radius: 2px;
+  color: var(--error-color);
 }
 
+/* Underline / Cursor Indicator like screenshot */
 .char.current {
-  border-bottom: 3px solid var(--cursor-color);
-  animation: blink 1s infinite ease-in-out;
+  color: var(--text-color);
+  border-bottom: 2px solid var(--main-color);
+  animation: cursorBlink 1s infinite steps(1);
 }
 
-@keyframes blink {
-  0%, 100% { border-color: var(--cursor-color); }
+@keyframes cursorBlink {
+  0%, 100% { border-color: var(--main-color); }
   50% { border-color: transparent; }
 }
 
-.hidden-input {
+/* Off-screen hidden input to maintain keyboard focus */
+.ghost-input {
   position: absolute;
   top: 0;
   left: 0;
+  opacity: 0;
   width: 100%;
   height: 100%;
-  opacity: 0;
   cursor: default;
   z-index: 10;
 }
 
 /* =========================================
-   Result Dashboard
+   Restart Prompt & Button (Screenshot Replica)
 ========================================= */
-.result-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 16px;
-}
-
-.result-box {
-  background: var(--bg-card-hover);
-  border: 1px solid var(--border-color);
-  padding: 20px 16px;
-  border-radius: 12px;
-  text-align: center;
-}
-
-.result-box .val {
-  font-size: 2rem;
-  font-weight: 800;
-  color: var(--primary);
-  font-family: var(--font-mono);
-}
-
-.result-box .lbl {
+.restart-cue {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--sub-color);
   font-size: 0.8rem;
-  color: var(--text-muted);
-  margin-top: 6px;
-  text-transform: uppercase;
-  font-weight: 600;
+  margin-top: 28px;
 }
 
-/* =========================================
-   Ad Placement Frame
-========================================= */
-.ad-slot {
-  width: 100%;
-  min-height: 90px;
+.cue-key {
+  background: #2c2e31;
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: var(--sub-color);
+}
+
+.btn-restart-circle {
+  background: transparent;
+  border: none;
+  color: var(--sub-color);
+  cursor: pointer;
+  padding: 12px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.015);
-  border: 1px dashed var(--border-color);
-  border-radius: 12px;
-  overflow: hidden;
+  transition: all 0.2s ease;
+  margin-top: 8px;
+}
+
+.btn-restart-circle:hover {
+  color: var(--text-color);
+  transform: rotate(45deg);
+}
+
+.btn-restart-circle svg {
+  width: 26px;
+  height: 26px;
+  fill: currentColor;
 }
 
 /* =========================================
-   Responsive Tweaks
+   Bottom Ad Frame
 ========================================= */
-@media (max-width: 640px) {
-  .container {
-    gap: 20px;
-  }
-  .card {
-    padding: 18px;
-  }
-  .typing-surface {
-    font-size: 1.15rem;
-    line-height: 1.7;
-    padding: 16px;
-  }
-  .stat-value {
-    font-size: 1.5rem;
-  }
-  .result-box .val {
-    font-size: 1.6rem;
+.bottom-ad-bar {
+  width: 100%;
+  max-width: 728px;
+  min-height: 60px;
+  margin-top: auto;
+  border-radius: 6px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 600px) {
+  .words-wrapper {
+    font-size: 1.25rem;
+    line-height: 1.6;
   }
 }
