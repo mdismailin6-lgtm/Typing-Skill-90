@@ -233,4 +233,127 @@ body {
     font-size: 1.25rem;
     line-height: 1.6;
   }
+
+   /* =========================================
+   Interactive Top Nav Icons & Modals
+========================================= */
+.nav-icons span, .nav-icons button {
+  background: transparent;
+  border: none;
+  color: var(--sub-color);
+  font-size: 1.15rem;
+  cursor: pointer;
+  transition: color 0.15s ease, transform 0.1s ease;
+  padding: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-icons span:hover, .nav-icons button:hover {
+  color: var(--text-color);
+  transform: translateY(-1px);
+}
+
+/* Modal Overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(3px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.15s ease;
+}
+
+.modal-overlay.active {
+  display: flex;
+}
+
+/* Modal Content Box */
+.modal-box {
+  background: var(--sub-alt-color);
+  border: 1px solid var(--sub-color);
+  border-radius: 12px;
+  width: 90%;
+  max-width: 480px;
+  padding: 24px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  color: var(--text-color);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 12px;
+}
+
+.modal-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--main-color);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modal-close-btn {
+  background: transparent;
+  border: none;
+  color: var(--sub-color);
+  font-size: 1.2rem;
+  cursor: pointer;
+  font-family: var(--font-mono);
+}
+
+.modal-close-btn:hover {
+  color: var(--error-color);
+}
+
+.modal-body {
+  font-size: 0.9rem;
+  color: var(--text-color);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Modal Internal Items */
+.setting-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+}
+
+.setting-toggle-btn {
+  background: var(--bg-color);
+  border: 1px solid var(--sub-color);
+  color: var(--text-color);
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+}
+
+.setting-toggle-btn.on {
+  border-color: var(--main-color);
+  color: var(--main-color);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
 }
