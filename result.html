@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Result — TypeSpeed</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="assets/favicon.png" type="image/png">
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <a href="index.html" class="brand">⚡ TypeSpeed</a>
+      <span style="font-size: 0.85rem; color: var(--text-muted);">Test Summary</span>
+    </header>
+
+    <main class="card">
+      <div class="result-grid">
+        <!-- ফাইনাল স্পিড -->
+        <div class="result-box">
+          <div class="val" id="res-wpm">0</div>
+          <div class="lbl">Speed (WPM)</div>
+        </div>
+
+        <!-- নির্ভুলতা -->
+        <div class="result-box">
+          <div class="val" id="res-accuracy">0%</div>
+          <div class="lbl">Accuracy</div>
+        </div>
+
+        <!-- সঠিক ক্যারেক্টার -->
+        <div class="result-box">
+          <div class="val" id="res-correct" style="color: var(--char-correct);">0</div>
+          <div class="lbl">Correct Chars</div>
+        </div>
+
+        <!-- ভুল ক্যারেক্টার -->
+        <div class="result-box">
+          <div class="val" id="res-incorrect" style="color: var(--char-incorrect);">0</div>
+          <div class="lbl">Incorrect Chars</div>
+        </div>
+
+        <!-- টাইপ করা ক্যারেক্টার / মোট টেক্সট -->
+        <div class="result-box">
+          <div class="val" id="res-typed">0</div>
+          <div class="lbl">Typed / Total</div>
+        </div>
+
+        <!-- টেস্ট ডিউরেশন -->
+        <div class="result-box">
+          <div class="val" id="res-duration">0s</div>
+          <div class="lbl">Time Taken</div>
+        </div>
+      </div>
+
+      <!-- অ্যাকশন বাটনসমূহ -->
+      <div class="btn-group" style="justify-content: center; margin-top: 12px;">
+        <button class="btn-primary" onclick="window.history.back()">Try Again</button>
+        <a href="index.html" class="btn-opt" style="padding: 14px 28px; text-decoration: none;">New Test</a>
+      </div>
+    </main>
+
+    <!-- রেজাল্ট পেজের নিরাপদ অ্যাড স্লট -->
+    <div class="ad-slot" id="result-ad-container"></div>
+  </div>
+
+  <!-- স্ক্রিপ্ট লোড -->
+  <script src="js/config.js"></script>
+  <script src="js/ads.js"></script>
+  <script src="js/api.js"></script>
+  <script>
+    async function displayResults() {
+      // ১. AdSense ব্যানার লোড (ডেটাবেস ad_config অনুযায়ী)
+      const adConfig = await API.getAdConfig();
+      AdManager.setup(adConfig);
+      if (adConfig && adConfig.enabled) {
+        AdManager.renderBanner("result-ad-container", adConfig.publisherId, CONFIG.FALLBACK_ADS.SLOTS.RESULT_BOTTOM);
+      }
+
+      // ২. SessionStorage থেকে রেজাল্ট রিড করা
+      const rawData = sessionStorage.getItem("typing_results");
+      if (!rawData) {
+        window.location.href = "index.html";
+        return;
+      }
+
+      const result = JSON.parse(rawData);
+
+      // ৩. মেট্রিকস UI-তে আপডেট করা
+      document.getElementById("res-wpm").textContent = result.wpm;
+      document.getElementById("res-accuracy").textContent = `${result.accuracy}%`;
+      document.getElementById("res-correct").textContent = result.correctChars;
+      document.getElementById("res-incorrect").textContent = result.incorrectChars;
+      document.getElementById("res-typed").textContent = `${result.typedChars} / ${result.totalChars}`;
+      document.getElementById("res-duration").textContent = `${result.duration}s`;
+    }
+
+    document.addEventListener("DOMContentLoaded", displayResults);
+  </script>
+</body>
+</html>
