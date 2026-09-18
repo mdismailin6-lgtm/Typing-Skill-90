@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Monkeytype Minimalist — TypeSpeed</title>
+  <title>TypeSpeed — Minimalist Typing Test</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="icon" href="assets/favicon.png" type="image/png">
 </head>
@@ -17,16 +17,16 @@
         <span>type</span>
       </a>
       <div class="nav-icons">
-        <span>📊</span>
-        <span>🏆</span>
-        <span>ℹ️</span>
-        <span>🔔</span>
-        <span>👤</span>
+        <button type="button" id="nav-stats-btn" title="Stats / History">📊</button>
+        <button type="button" id="nav-leaderboard-btn" title="Leaderboard">🏆</button>
+        <button type="button" id="nav-about-btn" title="About">ℹ️</button>
+        <button type="button" id="nav-notif-btn" title="Notifications">🔔</button>
+        <button type="button" id="nav-profile-btn" title="Profile">👤</button>
       </div>
     </header>
 
     <!-- Settings Pill Button -->
-    <button class="settings-pill-btn" onclick="window.location.href='index.html'">
+    <button type="button" id="nav-settings-btn" class="settings-pill-btn">
       <span>⚙</span> test settings
     </button>
 
@@ -70,6 +70,21 @@
 
     <!-- Bottom Ad Container -->
     <div class="bottom-ad-bar" id="typing-ad-bottom"></div>
+  </div>
+
+  <!-- =========================================
+       Interactive Modals (Popups)
+  ========================================= -->
+  <div id="app-modal-overlay" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div class="modal-title" id="modal-title-text">Modal Title</div>
+        <button type="button" class="modal-close-btn" id="modal-close-btn">✕</button>
+      </div>
+      <div class="modal-body" id="modal-content-area">
+        <!-- ডাইনামিক কন্টেন্ট ইনজেক্ট হবে -->
+      </div>
+    </div>
   </div>
 
   <!-- Scripts -->
