@@ -1,16 +1,13 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;600;700&display=swap');
 
-/* =========================================
-   Monkeytype Signature Color Palette
-========================================= */
 :root {
   --bg-color: #323437;          /* Monkeytype Core Charcoal */
-  --main-color: #e2b714;        /* Monkeytype Vibrant Yellow Accent */
+  --main-color: #e2b714;        /* Vibrant Yellow Accent */
   --caret-color: #e2b714;
-  --sub-color: #646669;         /* Unfocused / Untyped Gray */
-  --text-color: #d1d0c5;        /* Active / Typed Bright White */
-  --error-color: #ca4754;       /* Incorrect Text Red */
-  --error-extra: #7e2a33;
+  --sub-color: #646669;         /* Untyped Gray */
+  --sub-alt-color: #2c2e31;     /* Darker Element Background */
+  --text-color: #d1d0c5;        /* Typed Bright White */
+  --error-color: #ca4754;       /* Error Red */
   --font-mono: 'Roboto Mono', monospace;
 }
 
@@ -27,9 +24,9 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   align-items: center;
-  padding: 16px;
+  justify-content: space-between;
+  padding: 24px 16px;
   overflow-x: hidden;
 }
 
@@ -39,12 +36,10 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 24px;
+  gap: 32px;
 }
 
-/* =========================================
-   Top Minimal Navbar
-========================================= */
+/* Navbar */
 .top-nav {
   width: 100%;
   display: flex;
@@ -59,10 +54,10 @@ body {
   gap: 8px;
   border: 2px solid var(--main-color);
   border-radius: 6px;
-  padding: 4px 8px;
+  padding: 4px 10px;
   color: var(--main-color);
-  font-weight: 600;
-  font-size: 0.9rem;
+  font-weight: 700;
+  font-size: 0.95rem;
   text-decoration: none;
 }
 
@@ -73,164 +68,101 @@ body {
   font-size: 1.1rem;
 }
 
-/* =========================================
-   Pill Action Controls (Test Settings / Mode)
-========================================= */
-.settings-pill-btn {
-  background: transparent;
-  border: 1px solid var(--sub-color);
-  color: var(--sub-color);
-  font-family: var(--font-mono);
-  padding: 8px 24px;
-  border-radius: 20px;
-  font-size: 0.9rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: all 0.2s ease;
-}
-
-.settings-pill-btn:hover {
-  border-color: var(--text-color);
-  color: var(--text-color);
-}
-
-.language-label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--sub-color);
-  font-size: 0.9rem;
-  margin-top: 10px;
-}
-
-/* =========================================
-   Live Typing Word Stream (Exact Monkeytype Look)
-========================================= */
-.typing-box {
-  width: 100%;
-  min-height: 140px;
-  position: relative;
-  margin-top: 20px;
-  outline: none;
-  cursor: default;
-}
-
-.words-wrapper {
+/* Monkeytype Configuration Bar */
+.config-bar {
+  background: var(--sub-alt-color);
+  border-radius: 12px;
+  padding: 8px 16px;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5em 0.8em;
-  font-size: 1.5rem;
-  line-height: 1.6;
-  user-select: none;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 10px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
 }
 
-.word {
-  display: flex;
-}
-
-.char {
-  color: var(--sub-color);
-  position: relative;
-  transition: color 0.08s ease;
-}
-
-.char.correct {
-  color: var(--text-color);
-}
-
-.char.incorrect {
-  color: var(--error-color);
-}
-
-/* Underline / Cursor Indicator like screenshot */
-.char.current {
-  color: var(--text-color);
-  border-bottom: 2px solid var(--main-color);
-  animation: cursorBlink 1s infinite steps(1);
-}
-
-@keyframes cursorBlink {
-  0%, 100% { border-color: var(--main-color); }
-  50% { border-color: transparent; }
-}
-
-/* Off-screen hidden input to maintain keyboard focus */
-.ghost-input {
-  position: absolute;
-  top: 0;
-  left: 0;
-  opacity: 0;
-  width: 100%;
-  height: 100%;
-  cursor: default;
-  z-index: 10;
-}
-
-/* =========================================
-   Restart Prompt & Button (Screenshot Replica)
-========================================= */
-.restart-cue {
+.config-group {
   display: flex;
   align-items: center;
-  gap: 6px;
-  color: var(--sub-color);
-  font-size: 0.8rem;
-  margin-top: 28px;
+  gap: 8px;
 }
 
-.cue-key {
-  background: #2c2e31;
-  padding: 2px 6px;
-  border-radius: 4px;
-  color: var(--sub-color);
+.config-divider {
+  width: 2px;
+  height: 20px;
+  background-color: var(--bg-color);
 }
 
-.btn-restart-circle {
+.btn-pill {
   background: transparent;
   border: none;
   color: var(--sub-color);
+  font-family: var(--font-mono);
+  font-size: 0.88rem;
+  font-weight: 500;
   cursor: pointer;
-  padding: 12px;
-  border-radius: 50%;
+  padding: 6px 12px;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+}
+
+.btn-pill:hover {
+  color: var(--text-color);
+}
+
+.btn-pill.active {
+  color: var(--main-color);
+  font-weight: 700;
+}
+
+/* Action Button */
+.start-btn-wrap {
+  margin-top: 20px;
+}
+
+.btn-start {
+  background: var(--main-color);
+  color: var(--bg-color);
+  border: none;
+  font-family: var(--font-mono);
+  padding: 12px 36px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.1s ease, opacity 0.2s ease;
   display: flex;
   align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-  margin-top: 8px;
+  gap: 8px;
 }
 
-.btn-restart-circle:hover {
-  color: var(--text-color);
-  transform: rotate(45deg);
+.btn-start:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
 }
 
-.btn-restart-circle svg {
-  width: 26px;
-  height: 26px;
-  fill: currentColor;
-}
-
-/* =========================================
-   Bottom Ad Frame
-========================================= */
-.bottom-ad-bar {
+/* Ad Placement Frame */
+.ad-slot {
   width: 100%;
   max-width: 728px;
-  min-height: 60px;
+  min-height: 90px;
   margin-top: auto;
-  border-radius: 6px;
+  border-radius: 8px;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-/* Mobile Responsiveness */
-@media (max-width: 600px) {
-  .words-wrapper {
-    font-size: 1.25rem;
-    line-height: 1.6;
+@media (max-width: 650px) {
+  .config-bar {
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    padding: 16px;
+  }
+  .config-divider {
+    display: none;
   }
 }
