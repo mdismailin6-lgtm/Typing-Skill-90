@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Typing Test — TypeSpeed</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="assets/favicon.png" type="image/png">
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <a href="index.html" class="brand">⚡ TypeSpeed</a>
+      <div style="display: flex; gap: 10px;">
+        <button class="btn-opt" onclick="location.reload()">Restart</button>
+        <a href="index.html" class="btn-opt" style="text-decoration: none;">Exit</a>
+      </div>
+    </header>
+
+    <!-- নেটওয়ার্ক লোডিং ও এরর স্ট্যাটাস -->
+    <div id="loader-box" class="card" style="text-align: center; color: var(--text-muted);">
+      কন্টেন্ট ফেচ করা হচ্ছে, অনুগ্রহ করে অপেক্ষা করুন...
+    </div>
+
+    <!-- মূল টাইপিং জোন (কন্টেন্ট লোড হওয়ার আগ পর্যন্ত হাইড থাকবে) -->
+    <main id="typing-zone" style="display: none; flex-direction: column; gap: 20px;">
+      
+      <!-- রিয়েল-টাইম মেট্রিকস বার -->
+      <div class="stats-bar">
+        <div class="stat-item">
+          <span class="stat-label">Time</span>
+          <span class="stat-value" id="val-timer">00s</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">WPM</span>
+          <span class="stat-value" id="val-wpm">0</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Accuracy</span>
+          <span class="stat-value" id="val-accuracy">100%</span>
+        </div>
+      </div>
+
+      <!-- ইন্টারঅ্যাক্টিভ টেক্সট ডিসপ্লে -->
+      <div class="typing-surface" id="surface-box">
+        <div class="text-stream" id="text-stream"></div>
+        <!-- লুকানো ইনপুট যা মোবাইল কীবোর্ড ও ব্রাউজার ইভেন্ট ক্যাচ করবে -->
+        <input 
+          type="text" 
+          id="hidden-key-input" 
+          class="hidden-input" 
+          autocomplete="off" 
+          autocorrect="off" 
+          autocapitalize="off" 
+          spellcheck="false"
+        >
+      </div>
+
+    </main>
+  </div>
+
+  <!-- স্ক্রিপ্ট লোড -->
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/typing.js"></script>
+</body>
+</html>
