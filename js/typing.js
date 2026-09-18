@@ -1,124 +1,177 @@
 /**
- * Core Typing Engine
- * Handles character-by-character comparison, timer, WPM & Accuracy calculation
+ * Monkeytype Style Real-Time Typing Engine
+ * Supports space-delimited words, accurate metrics & quick restart
  */
 
-class TypingEngine {
+class MonkeyTypingEngine {
   constructor(contentData, duration) {
-    this.text = (contentData.text || "").trim();
+    this.rawText = (contentData.text || "").trim();
+    this.wordsList = this.rawText.split(/\s+/);
     this.totalDuration = parseInt(duration, 10);
     this.remainingTime = this.totalDuration;
 
     this.timer = null;
     this.isStarted = false;
-    this.charIndex = 0;
+    this.currentWordIdx = 0;
+    this.currentCharIdx = 0;
+
     this.correctChars = 0;
     this.incorrectChars = 0;
 
     // DOM Elements
-    this.textStream = document.getElementById("text-stream");
-    this.input = document.getElementById("hidden-key-input");
-    this.timerDisplay = document.getElementById("val-timer");
-    this.wpmDisplay = document.getElementById("val-wpm");
-    this.accuracyDisplay = document.getElementById("val-accuracy");
-    this.surfaceBox = document.getElementById("surface-box");
+    this.wordsWrapper = document.getElementById("words-wrapper");
+    this.input = document.getElementById("ghost-input");
+    this.restartBtn = document.getElementById("btn-restart");
 
     this.init();
   }
 
   init() {
-    this.timerDisplay.textContent = `${this.remainingTime}s`;
-    this.renderTextSpans();
-
-    // বক্সের যেকোনো জায়গায় ক্লিক করলে ইনপুটে ফোকাস ধরে রাখবে
-    this.surfaceBox.addEventListener("click", () => this.input.focus());
-    this.input.addEventListener("input", (e) => this.handleTyping(e));
-
-    // অটো-ফোকাস
-    this.input.focus();
+    this.renderWords();
+    this.setupListeners();
+    this.focusInput();
   }
 
-  renderTextSpans() {
-    this.textStream.innerHTML = "";
-    this.text.split("").forEach((char, index) => {
-      const span = document.createElement("span");
-      span.className = "char";
-      span.textContent = char;
-      if (index === 0) span.classList.add("current");
-      this.textStream.appendChild(span);
+  renderWords() {
+    this.wordsWrapper.innerHTML = "";
+    this.wordsList.forEach((wordText, wIdx) => {
+      const wordEl = document.createElement("div");
+      wordEl.className = "word";
+      wordEl.dataset.index = wIdx;
+
+      wordText.split("").forEach((char, cIdx) => {
+        const charSpan = document.createElement("span");
+        charSpan.className = "char";
+        charSpan.textContent = char;
+        if (wIdx === 0 && cIdx === 0) {
+          charSpan.classList.add("current");
+        }
+        wordEl.appendChild(charSpan);
+      });
+
+      this.wordsWrapper.appendChild(wordEl);
     });
   }
 
-  startCountdown() {
+  focusInput() {
+    this.input.focus();
+    // মোবাইল স্ক্রল প্রিভেনশন ও ফোকাস নিশ্চিত করা
+    document.addEventListener("click", () => this.input.focus());
+  }
+
+  setupListeners() {
+    this.input.value = "";
+    this.input.addEventListener("input", (e) => this.handleInput(e));
+    this.restartBtn.addEventListener("click", () => location.reload());
+
+    // Tab + Enter দিয়ে কুইক রিস্টার্ট (স্ক্রিনশটের মতো)
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Tab") {
+        e.preventDefault();
+        this.tabPressed = true;
+      }
+      if (e.key === "Enter" && this.tabPressed) {
+        e.preventDefault();
+        location.reload();
+      }
+    });
+
+    window.addEventListener("keyup", (e) => {
+      if (e.key === "Tab") this.tabPressed = false;
+    });
+  }
+
+  startTimer() {
     this.isStarted = true;
     this.timer = setInterval(() => {
       this.remainingTime--;
-      this.timerDisplay.textContent = `${this.remainingTime}s`;
-      this.calculateMetrics();
-
       if (this.remainingTime <= 0) {
-        this.completeTest();
+        this.finishTest();
       }
     }, 1000);
   }
 
-  handleTyping(e) {
+  handleInput(e) {
     if (!this.isStarted) {
-      this.startCountdown();
+      this.startTimer();
     }
 
-    const currentInput = e.target.value;
-    const expectedChar = this.text[this.charIndex];
-    const charElements = this.textStream.children;
-    const currentCharSpan = charElements[this.charIndex];
-
-    if (!expectedChar) {
-      this.completeTest();
+    const currentWordEl = this.wordsWrapper.children[this.currentWordIdx];
+    if (!currentWordEl) {
+      this.finishTest();
       return;
     }
 
-    // টাইপ করা লেটেস্ট ক্যারেক্টার যাচাই
-    const typedChar = currentInput.slice(-1);
+    const targetWord = this.wordsList[this.currentWordIdx];
+    const inputValue = this.input.value;
 
-    if (typedChar === expectedChar) {
-      currentCharSpan.classList.add("correct");
-      this.correctChars++;
-    } else {
-      currentCharSpan.classList.add("incorrect");
-      this.incorrectChars++;
-    }
-
-    currentCharSpan.classList.remove("current");
-    this.charIndex++;
-
-    // পরবর্তী ক্যারেক্টারে কার্সার মুভ করা
-    if (this.charIndex < this.text.length) {
-      charElements[this.charIndex].classList.add("current");
-    } else {
-      this.completeTest();
+    // স্পেস চাপলে পরের শব্দে জাম্প করা
+    if (inputValue.endsWith(" ")) {
+      if (inputValue.trim().length > 0) {
+        this.moveToNextWord();
+      }
+      this.input.value = "";
       return;
     }
 
-    this.calculateMetrics();
+    const charElements = currentWordEl.children;
+    const typedLen = inputValue.length;
+
+    // কারেন্ট ক্যারেক্টার ও ভুল/সঠিক ভ্যালিডেশন
+    for (let i = 0; i < targetWord.length; i++) {
+      const span = charElements[i];
+      span.classList.remove("current", "correct", "incorrect");
+
+      if (i < typedLen) {
+        if (inputValue[i] === targetWord[i]) {
+          span.classList.add("correct");
+        } else {
+          span.classList.add("incorrect");
+        }
+      }
+    }
+
+    // কার্সার ইন্ডিকেটর আপডেট
+    if (typedLen < targetWord.length) {
+      charElements[typedLen].classList.add("current");
+    }
+
+    this.currentCharIdx = typedLen;
   }
 
-  calculateMetrics() {
-    const timeSpent = this.totalDuration - this.remainingTime;
-    const minutes = timeSpent > 0 ? timeSpent / 60 : 1 / 60;
+  moveToNextWord() {
+    const currentWordEl = this.wordsWrapper.children[this.currentWordIdx];
+    const targetWord = this.wordsList[this.currentWordIdx];
+    const typedWord = this.input.value.trim();
 
-    // আন্তর্জাতিক স্ট্যান্ডার্ড ফর্মুলা: (সঠিক ক্যারেক্টার / ৫) / মোট মিনিট
-    const wpm = Math.round((this.correctChars / 5) / minutes) || 0;
+    // শব্দের স্ট্যাটাস গণনা
+    for (let i = 0; i < targetWord.length; i++) {
+      if (i < typedWord.length && typedWord[i] === targetWord[i]) {
+        this.correctChars++;
+      } else {
+        this.incorrectChars++;
+      }
+    }
 
-    const totalTyped = this.correctChars + this.incorrectChars;
-    const accuracy = totalTyped > 0
-      ? ((this.correctChars / totalTyped) * 100).toFixed(1)
-      : 100;
+    // স্পেসের জন্য ১টি সঠিক কাউন্ট যোগ করা
+    this.correctChars++;
 
-    this.wpmDisplay.textContent = wpm;
-    this.accuracyDisplay.textContent = `${accuracy}%`;
+    // কার্সার রিমুভ ও নেক্সট ওয়ার্ড সিলেক্ট
+    Array.from(currentWordEl.children).forEach(span => span.classList.remove("current"));
+
+    this.currentWordIdx++;
+    if (this.currentWordIdx >= this.wordsList.length) {
+      this.finishTest();
+      return;
+    }
+
+    const nextWordEl = this.wordsWrapper.children[this.currentWordIdx];
+    if (nextWordEl && nextWordEl.children.length > 0) {
+      nextWordEl.children[0].classList.add("current");
+    }
   }
 
-  completeTest() {
+  finishTest() {
     clearInterval(this.timer);
     this.input.disabled = true;
 
@@ -126,29 +179,27 @@ class TypingEngine {
     const minutes = timeSpent / 60;
     const finalWpm = Math.round((this.correctChars / 5) / minutes) || 0;
     const totalTyped = this.correctChars + this.incorrectChars;
-    const finalAccuracy = totalTyped > 0
-      ? ((this.correctChars / totalTyped) * 100).toFixed(1)
+    const finalAccuracy = totalTyped > 0 
+      ? ((this.correctChars / totalTyped) * 100).toFixed(1) 
       : 100;
 
-    // রেজাল্ট অবজেক্ট তৈরি
     const resultSummary = {
       wpm: finalWpm,
       accuracy: finalAccuracy,
       correctChars: this.correctChars,
       incorrectChars: this.incorrectChars,
-      totalChars: this.text.length,
+      totalChars: this.rawText.length,
       typedChars: totalTyped,
       typedWords: Math.round(this.correctChars / 5),
       duration: timeSpent
     };
 
-    // রেজাল্ট ব্রাউজারের Session-এ সংরক্ষণ করে রিডাইরেক্ট
     sessionStorage.setItem("typing_results", JSON.stringify(resultSummary));
     window.location.href = "result.html";
   }
 }
 
-// পেজ রেডি হলে কন্ট্রোল স্টার্ট করা
+// ইনিশিয়ালাইজেশন
 document.addEventListener("DOMContentLoaded", async () => {
   const urlParams = new URLSearchParams(window.location.search);
   const mode = urlParams.get("mode") || CONFIG.DEFAULTS.MODE;
@@ -157,23 +208,29 @@ document.addEventListener("DOMContentLoaded", async () => {
   const language = urlParams.get("language") || CONFIG.DEFAULTS.LANGUAGE;
   const category = urlParams.get("category") || CONFIG.DEFAULTS.CATEGORY;
 
+  const activeLangEl = document.getElementById("active-language");
+  if (activeLangEl) activeLangEl.textContent = language;
+
   const loaderBox = document.getElementById("loader-box");
   const typingZone = document.getElementById("typing-zone");
 
+  // AdSense ব্যানার হ্যান্ডলিং (নিচের নিরাপদ স্লটে)
+  const adConfig = await API.getAdConfig();
+  AdManager.setup(adConfig);
+  if (adConfig && adConfig.enabled) {
+    AdManager.renderBanner("typing-ad-bottom", adConfig.publisherId, CONFIG.FALLBACK_ADS.SLOTS.RESULT_BOTTOM);
+  }
+
   try {
     const data = await API.getTypingContent({ mode, category, language, difficulty, duration });
-
-    // কন্টেন্ট রেন্ডার
     loaderBox.style.display = "none";
-    typingZone.style.display = "flex";
+    typingZone.style.display = "block";
 
-    new TypingEngine(data, duration);
+    new MonkeyTypingEngine(data, duration);
   } catch (err) {
     loaderBox.innerHTML = `
-      <p style="color: var(--char-incorrect); margin-bottom: 16px;">
-        Unable to load typing content. Please try again.
-      </p>
-      <button class="btn-primary" onclick="location.reload()">Retry</button>
+      <p style="color: var(--error-color); margin-bottom: 12px;">Failed to load content.</p>
+      <button class="settings-pill-btn" onclick="location.reload()">Retry</button>
     `;
   }
 });
