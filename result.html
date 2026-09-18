@@ -9,121 +9,94 @@
 </head>
 <body>
 
-  <div class="page-container">
-    <!-- Top Minimal Navigation -->
-    <header class="top-nav">
-      <a href="index.html" class="brand-badge">
-        <span>⌨</span>
-        <span>type</span>
-      </a>
-      <span style="color: var(--sub-color); font-size: 0.85rem;">Test Summary</span>
+  <div class="container">
+    <header>
+      <a href="index.html" class="brand">⚡ TypeSpeed</a>
+      <span style="font-size: 0.85rem; color: var(--text-muted);">Test Summary</span>
     </header>
 
-    <!-- Main Result Dashboard Card -->
-    <main class="result-container">
-      <div class="result-header">
-        <h1 class="result-heading">Test Completed</h1>
-        <p class="result-subhead">Here is the detailed breakdown of your typing performance</p>
+    <main class="card">
+      <div class="result-grid">
+        <!-- ফাইনাল স্পিড -->
+        <div class="result-box">
+          <div class="val" id="res-wpm">0</div>
+          <div class="lbl">Speed (WPM)</div>
+        </div>
+
+        <!-- নির্ভুলতা -->
+        <div class="result-box">
+          <div class="val" id="res-accuracy">0%</div>
+          <div class="lbl">Accuracy</div>
+        </div>
+
+        <!-- সঠিক ক্যারেক্টার -->
+        <div class="result-box">
+          <div class="val" id="res-correct" style="color: var(--char-correct);">0</div>
+          <div class="lbl">Correct Chars</div>
+        </div>
+
+        <!-- ভুল ক্যারেক্টার -->
+        <div class="result-box">
+          <div class="val" id="res-incorrect" style="color: var(--char-incorrect);">0</div>
+          <div class="lbl">Incorrect Chars</div>
+        </div>
+
+        <!-- টাইপ করা ক্যারেক্টার / মোট টেক্সট -->
+        <div class="result-box">
+          <div class="val" id="res-typed">0</div>
+          <div class="lbl">Typed / Total</div>
+        </div>
+
+        <!-- টেস্ট ডিউরেশন -->
+        <div class="result-box">
+          <div class="val" id="res-duration">0s</div>
+          <div class="lbl">Time Taken</div>
+        </div>
       </div>
 
-      <!-- Prominent Stats: WPM & Accuracy -->
-      <section class="primary-stats-grid">
-        <div class="highlight-stat-card">
-          <span class="highlight-val" id="res-wpm">0</span>
-          <span class="highlight-lbl">Words Per Minute</span>
-        </div>
-        <div class="highlight-stat-card acc-card">
-          <span class="highlight-val" id="res-accuracy">0%</span>
-          <span class="highlight-lbl">Accuracy</span>
-        </div>
-      </section>
-
-      <!-- Detailed Breakdown Grid -->
-      <section class="secondary-stats-grid">
-        <div class="micro-stat-card">
-          <span class="micro-icon">✅</span>
-          <span class="micro-val correct" id="res-correct">0</span>
-          <span class="micro-lbl">Correct</span>
-        </div>
-
-        <div class="micro-stat-card">
-          <span class="micro-icon">❌</span>
-          <span class="micro-val incorrect" id="res-incorrect">0</span>
-          <span class="micro-lbl">Incorrect</span>
-        </div>
-
-        <div class="micro-stat-card">
-          <span class="micro-icon">⌨️</span>
-          <span class="micro-val" id="res-typed">0</span>
-          <span class="micro-lbl">Characters</span>
-        </div>
-
-        <div class="micro-stat-card">
-          <span class="micro-icon">📝</span>
-          <span class="micro-val" id="res-words">0</span>
-          <span class="micro-lbl">Words</span>
-        </div>
-
-        <div class="micro-stat-card">
-          <span class="micro-icon">⏱️</span>
-          <span class="micro-val" id="res-duration">0s</span>
-          <span class="micro-lbl">Time</span>
-        </div>
-      </section>
-
-      <!-- Buttons -->
-      <div class="result-actions">
-        <button type="button" class="btn-try-again" id="btn-try-again">
-          <span>↻</span> Try Again
-        </button>
-        <a href="index.html" class="btn-new-test">
-          <span>⚙</span> New Test
-        </a>
+      <!-- অ্যাকশন বাটনসমূহ -->
+      <div class="btn-group" style="justify-content: center; margin-top: 12px;">
+        <button class="btn-primary" onclick="window.history.back()">Try Again</button>
+        <a href="index.html" class="btn-opt" style="padding: 14px 28px; text-decoration: none;">New Test</a>
       </div>
     </main>
 
-    <!-- Isolated Google AdSense Slot -->
-    <div class="bottom-ad-bar" id="result-ad-bottom"></div>
+    <!-- রেজাল্ট পেজের নিরাপদ অ্যাড স্লট -->
+    <div class="ad-slot" id="result-ad-container"></div>
   </div>
 
-  <!-- Scripts -->
+  <!-- স্ক্রিপ্ট লোড -->
   <script src="js/config.js"></script>
   <script src="js/ads.js"></script>
   <script src="js/api.js"></script>
   <script>
-    async function loadResultDashboard() {
-      // ১. AdSense নিরাপদে লোড করা
+    async function displayResults() {
+      // ১. AdSense ব্যানার লোড (ডেটাবেস ad_config অনুযায়ী)
       const adConfig = await API.getAdConfig();
       AdManager.setup(adConfig);
       if (adConfig && adConfig.enabled) {
-        AdManager.renderBanner("result-ad-bottom", adConfig.publisherId, CONFIG.FALLBACK_ADS.SLOTS.RESULT_BOTTOM);
+        AdManager.renderBanner("result-ad-container", adConfig.publisherId, CONFIG.FALLBACK_ADS.SLOTS.RESULT_BOTTOM);
       }
 
-      // ২. টেস্ট রেজাল্ট সেশন থেকে ফেচ করা
+      // ২. SessionStorage থেকে রেজাল্ট রিড করা
       const rawData = sessionStorage.getItem("typing_results");
       if (!rawData) {
         window.location.href = "index.html";
         return;
       }
 
-      const res = JSON.parse(rawData);
+      const result = JSON.parse(rawData);
 
-      // ৩. মেট্রিক্স বাইন্ডিং
-      document.getElementById("res-wpm").textContent = res.wpm;
-      document.getElementById("res-accuracy").textContent = `${res.accuracy}%`;
-      document.getElementById("res-correct").textContent = res.correctChars;
-      document.getElementById("res-incorrect").textContent = res.incorrectChars;
-      document.getElementById("res-typed").textContent = `${res.typedChars} / ${res.totalChars}`;
-      document.getElementById("res-words").textContent = res.typedWords || Math.round(res.correctChars / 5);
-      document.getElementById("res-duration").textContent = `${res.duration}s`;
-
-      // ৪. Try Again হ্যান্ডলার
-      document.getElementById("btn-try-again").addEventListener("click", () => {
-        window.history.back();
-      });
+      // ৩. মেট্রিকস UI-তে আপডেট করা
+      document.getElementById("res-wpm").textContent = result.wpm;
+      document.getElementById("res-accuracy").textContent = `${result.accuracy}%`;
+      document.getElementById("res-correct").textContent = result.correctChars;
+      document.getElementById("res-incorrect").textContent = result.incorrectChars;
+      document.getElementById("res-typed").textContent = `${result.typedChars} / ${result.totalChars}`;
+      document.getElementById("res-duration").textContent = `${result.duration}s`;
     }
 
-    document.addEventListener("DOMContentLoaded", loadResultDashboard);
+    document.addEventListener("DOMContentLoaded", displayResults);
   </script>
 </body>
 </html>
